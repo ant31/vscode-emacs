@@ -10,13 +10,17 @@ export class Operation {
             'C-k': () => {
                 this.editor.kill();
              },
-            // 'C-w': () => {
-            //     if (this.editor.cut()) {
-            //         this.editor.setStatusBarMessage("Cut");
-            //     } else {
-            //         this.editor.setStatusBarMessage("Cut Error!");
-            //     }
-            // },
+            'C-w': () => {
+                if (this.editor.cut()) {
+                    this.editor.setStatusBarMessage("Cut");
+                }
+            },
+            'M-w': () => {
+               if (this.editor.copy()) {
+                    this.editor.setStatusBarMessage("Copy");
+                }
+            },
+
             // 'M-w': () => {
             //     if (this.editor.copy()) {
             //         this.editor.setStatusBarMessage("Copy");

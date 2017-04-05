@@ -6,7 +6,8 @@ export function activate(context: vscode.ExtensionContext): void {
     let op = new Operation(),
         commandList: string[] = [
             "C-g",
-
+            "C-w",
+            "M-w",
             // Edit
             "C-k"
         ],
@@ -63,6 +64,9 @@ export function deactivate(): void {
 function initMarkMode(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.commands.registerCommand(
         'emacs.enterMarkMode', () => {
+            if (inMarkMode) {
+                vscode.commands.executeCommand("cancelSelection");
+            }
             initSelection();
             inMarkMode = true;
             vscode.window.setStatusBarMessage("Mark Set", 1000);

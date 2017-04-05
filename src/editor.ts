@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {RegisterContent, RectangleContent, RegisterKind} from './registers';
+import { RegisterContent, RectangleContent, RegisterKind } from './registers';
 
 enum KeybindProgressMode {
     None,   // No current keybind is currently in progress
@@ -14,7 +14,7 @@ export class Editor {
     private killRing: string;
     private isKillRepeated: boolean;
     private keybindProgressMode: KeybindProgressMode;
-    private registersStorage: { [key:string] : RegisterContent; };
+    private registersStorage: { [key: string]: RegisterContent; };
 
     constructor() {
         this.killRing = '';
@@ -55,24 +55,8 @@ export class Editor {
     /** Behave like Emacs kill command
     */
     kill(): void {
-        let saveIsKillRepeated = this.isKillRepeated,
-            promises = [
-                vscode.commands.executeCommand("emacs.exitMarkMode"),
-                vscode.commands.executeCommand("cursorEndSelect")
-            ];
-
-        Promise.all(promises).then(() => {
-            let selection = this.getSelection(),
-                range = new vscode.Range(selection.start, selection.end);
-
-            this.setSelection(range.start, range.start);
-            this.isKillRepeated = saveIsKillRepeated;
-            if (range.isEmpty) {
-                this.killEndOfLine(saveIsKillRepeated, range);
-            } else {
-                this.killText(range);
-            }
-        });
+        vscode.commands.executeCommand("emacs.exitMarkMode");
+        vscode.commands.executeCommand("cursorEndSelect");
     }
 
     private killEndOfLine(saveIsKillRepeated: boolean, range: vscode.Range): void {
@@ -104,27 +88,15 @@ export class Editor {
         });
     }
 
-    copy(range: vscode.Range = null): boolean {
-        this.killRing = '';
-        if (range === null) {
-            range = this.getSelectionRange();
-            if (range === null) {
-                vscode.commands.executeCommand("emacs.exitMarkMode");
-                return false;
-            }
-        }
-        this.killRing = vscode.window.activeTextEditor.document.getText(range);
-        vscode.commands.executeCommand("emacs.exitMarkMode");
-        return this.killRing !== undefined;
+    copy(): boolean {
+        vscode.commands.executeCommand("copy");
+     //   vscode.commands.executeCommand("emacs.exitMarkMode");
+        return true
     }
 
     cut(): boolean {
-        let range: vscode.Range = this.getSelectionRange();
-
-        if (!this.copy(range)) {
-            return false;
-        }
-        Editor.delete(range);
+        vscode.commands.executeCommand("editor.action.clipboardCutAction");
+   //     vscode.commands.executeCommand("emacs.exitMarkMode");
         return true;
     }
 
@@ -178,8 +150,8 @@ export class Editor {
         selection = new vscode.Selection(nextLine, nextLine);
         vscode.window.activeTextEditor.selection = selection;
         for (let line = selection.start.line;
-             line < doc.lineCount - 1  && doc.lineAt(line).range.isEmpty;
-             ++line) {
+            line < doc.lineCount - 1 && doc.lineAt(line).range.isEmpty;
+            ++line) {
             promises.push(vscode.commands.executeCommand("deleteRight"));
         }
         Promise.all(promises).then(() => {
@@ -208,11 +180,9 @@ export class Editor {
 
     onType(text: string): void {
         let fHandled = false;
-        switch(this.keybindProgressMode)
-        {
+        switch (this.keybindProgressMode) {
             case KeybindProgressMode.RMode:
-                switch (text)
-                {
+                switch (text) {
                     // Rectangles
                     case 'r':
                         this.setStatusBarMessage("'C-x r r' (Copy rectangle to register) is not supported.");
@@ -304,7 +274,7 @@ export class Editor {
         if (null == registerName) {
             return;
         }
-        let range : vscode.Range = this.getSelectionRange();
+        let range: vscode.Range = this.getSelectionRange();
         if (range !== null) {
             let selectedText = vscode.window.activeTextEditor.document.getText(range);
             if (null !== selectedText) {
@@ -316,13 +286,13 @@ export class Editor {
 
     RestoreTextFromRegister(registerName: string): void {
         vscode.commands.executeCommand("emacs.exitMarkMode"); // emulate Emacs
-        let obj : RegisterContent = this.registersStorage[registerName];
+        let obj: RegisterContent = this.registersStorage[registerName];
         if (null == obj) {
             this.setStatusBarMessage("Register does not contain text.");
             return;
         }
         if (RegisterKind.KText === obj.getRegisterKind()) {
-            const content : string | vscode.Position | RectangleContent = obj.getRegisterContent();
+            const content: string | vscode.Position | RectangleContent = obj.getRegisterContent();
             if (typeof content === 'string') {
                 vscode.window.activeTextEditor.edit(editBuilder => {
                     editBuilder.insert(this.getSelection().active, content);
