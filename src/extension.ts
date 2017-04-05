@@ -8,11 +8,7 @@ export function activate(context: vscode.ExtensionContext): void {
             "C-g",
 
             // Edit
-            "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
-            "C-x_u", "C-/",
-
-            // R-Mode
-            "C-x_r"
+            "C-k"
         ],
         cursorMoves: string[] = [
             "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
@@ -20,7 +16,7 @@ export function activate(context: vscode.ExtensionContext): void {
             "cursorWordLeft", "cursorWordRight",
             "cursorPageDown", "cursorPageUp",
             "cursorTop", "cursorBottom"
-        ];
+        ], blockMoves = ["Down", "Up" ] ;
 
     commandList.forEach(commandName => {
         context.subscriptions.push(registerCommand(commandName, op));
@@ -38,12 +34,24 @@ export function activate(context: vscode.ExtensionContext): void {
         )
     });
 
+    blockMoves.forEach(element => {
+        context.subscriptions.push(vscode.commands.registerCommand(
+            "emacs.blockMove" + element, () => {
+                vscode.commands.executeCommand(
+                    inMarkMode ?
+                    "spaceBlockJumper.select" + element:
+                    "spaceBlockJumper.move" + element
+                );
+            })
+        )
+    });
+
     // 'type' is not an "emacs." command and should be registered separately
     context.subscriptions.push(vscode.commands.registerCommand("type", function (args) {
 		if (!vscode.window.activeTextEditor) {
 			return;
 		}
-		op.onType(args.text);        
+		op.onType(args.text);
     }));
 
     initMarkMode(context);

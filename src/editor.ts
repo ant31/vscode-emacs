@@ -31,7 +31,7 @@ export class Editor {
     }
 
     setStatusBarPermanentMessage(text: string): vscode.Disposable {
-        return vscode.window.setStatusBarMessage(text); 
+        return vscode.window.setStatusBarMessage(text);
     }
 
     getSelectionRange(): vscode.Range {
@@ -202,7 +202,7 @@ export class Editor {
 
     setRMode(): void {
         this.setStatusBarPermanentMessage("C-x r");
-        this.keybindProgressMode = KeybindProgressMode.RMode; 
+        this.keybindProgressMode = KeybindProgressMode.RMode;
         return;
     }
 
@@ -297,7 +297,7 @@ export class Editor {
                 text: text
             });
         }
-        return;    
+        return;
     }
 
     SaveTextToRegister(registerName: string): void {
@@ -313,9 +313,9 @@ export class Editor {
         }
         return;
     }
-    
+
     RestoreTextFromRegister(registerName: string): void {
-        vscode.commands.executeCommand("emacs.exitMarkMode"); // emulate Emacs 
+        vscode.commands.executeCommand("emacs.exitMarkMode"); // emulate Emacs
         let obj : RegisterContent = this.registersStorage[registerName];
         if (null == obj) {
             this.setStatusBarMessage("Register does not contain text.");
@@ -328,7 +328,7 @@ export class Editor {
                     editBuilder.insert(this.getSelection().active, content);
                 });
             }
-        }  
+        }
         return;
     }
 }
