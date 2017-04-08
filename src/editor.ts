@@ -55,8 +55,8 @@ export class Editor {
     /** Behave like Emacs kill command
     */
     kill(): void {
-        vscode.commands.executeCommand("emacs.exitMarkMode");
         vscode.commands.executeCommand("cursorEndSelect");
+        this.cut();
     }
 
     private killEndOfLine(saveIsKillRepeated: boolean, range: vscode.Range): void {
@@ -89,14 +89,14 @@ export class Editor {
     }
 
     copy(): boolean {
-        vscode.commands.executeCommand("copy");
-     //   vscode.commands.executeCommand("emacs.exitMarkMode");
+        vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+        vscode.commands.executeCommand("emacs.cancelMarkMode");
         return true
     }
 
     cut(): boolean {
         vscode.commands.executeCommand("editor.action.clipboardCutAction");
-   //     vscode.commands.executeCommand("emacs.exitMarkMode");
+        vscode.commands.executeCommand("emacs.cancelMarkMode");
         return true;
     }
 
